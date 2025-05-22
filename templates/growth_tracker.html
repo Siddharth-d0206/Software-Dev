@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growth Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .table {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Plant Growth Dashboard</h1>
+        <div>
+            <h3>Add Growth Data</h3>
+            <form id="growthForm">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="plant_name">Plant Name</label>
+                        <input type="text" class="form-control" id="plant_name" name="plant_name" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="height">Height (in feet)</label>
+                        <input type="number" step="0.01" class="form-control" id="height" name="height" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="date">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Data</button>
+            </form>
+        </div>
+        <div>
+            <h3>Growth Data</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Plant Name</th>
+                        <th>Height (feet)</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in growth_data %}
+                    <tr>
+                        <td>{{ data['plant_name'] }}</td>
+                        <td>{{ data['height'] }}</td>
+                        <td>{{ data['date'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('growthForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const plantName = document.getElementById('plant_name').value;
+            const height = document.getElementById('height').value;
+            const date = document.getElementById('date').value;
+
+            try {
+                const response = await fetch('/add_growth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plant_name: plantName, height: height, date: date })
+                });
+
+                const data = await response.json();
+                if (data.message) {
+                    alert(data.message);
+                    location.reload(); // Reload to update the table
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
